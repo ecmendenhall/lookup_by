@@ -10,7 +10,18 @@ load 'rails/tasks/engine.rake'
 
 Bundler::GemHelper.install_tasks
 
-require "rspec/core/rake_task"
-RSpec::Core::RakeTask.new(:spec)
+SUPPORTED_ADAPTERS = %w(postgresql mysql2)
 
-task :default => :spec
+require "rspec/core/rake_task"
+RSpec::Core::RakeTask.new(:spec, :adapter) do |t, task_args|
+  adapter = task_args[:adapter] || 'postgresql'
+  excluded_tags = SUPPORTED_ADAPTERS - [adapter]
+  t.rspec_opts = "--tag ~#{excluded_tags.first}" if task_args.any?
+end
+
+RSpec::Core::RakeTask.new(:postgres_specs) do |t|
+  excluded_tags = SUPPORTED_ADAPTERS - %w(postgresql)
+  t.rspec_opts = "--tag ~#{excluded_tags.first}"
+end
+
+task :default => :postgres_specs

@@ -8,7 +8,7 @@ class CreateTables < ActiveRecord::Migration
 
     create_lookup_table :statuses, small: true
 
-    create_lookup_table :ip_addresses, lookup_type: :inet
+    create_lookup_table :ip_addresses, lookup_type: :string
 
     create_lookup_table :phone_numbers
 
@@ -20,11 +20,14 @@ class CreateTables < ActiveRecord::Migration
 
     create_lookup_table :unsynchronizables
 
-    enable_extension 'uuid-ossp'
-
-    execute 'CREATE SCHEMA traffic;'
-
-    create_lookup_table :paths, schema: 'traffic', id: :uuid
+    if ENV['LOOKUP_BY_DB_ADAPTER'] != 'mysql2'
+      enable_extension 'uuid-ossp'
+      execute 'CREATE SCHEMA traffic;'
+      create_lookup_table :paths, schema: 'traffic', id: :uuid
+    else
+      create_table :traffic
+      create_lookup_table :paths
+    end
 
     create_lookup_table :accounts do |t|
       t.belongs_to :phone_number

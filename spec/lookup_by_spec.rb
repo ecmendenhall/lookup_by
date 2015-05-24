@@ -120,9 +120,14 @@ describe LookupBy::Lookup do
       expect(subject["  paid "].id).to eq(status.id)
     end
 
-    it "has a small primary key" do
+    it "has a small primary key", postgresql: true do
       sql_type = Status.columns_hash['status_id'].sql_type
       expect(sql_type).to eq('smallint')
+    end
+
+    it "has a small primary key", mysql2: true do
+      sql_type = Status.columns_hash['status_id'].sql_type
+      expect(sql_type).to eq('smallint(6)')
     end
   end
 
@@ -222,7 +227,7 @@ describe LookupBy::Lookup do
     end
   end
 
-  context "Path.lookup_by :column, cache: N, find_or_create: true (UUID primary key)" do
+  context "Path.lookup_by :column, cache: N, find_or_create: true (UUID primary key)", postgresql: true do
     subject { Path }
 
     it_behaves_like "a lookup"

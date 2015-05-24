@@ -12,8 +12,9 @@ group :development, :test do
   gem 'rspec-its'
   gem 'rspec-rails'
 
-  gem "pg", platform: :ruby
   gem "activerecord-jdbcpostgresql-adapter", platform: :jruby
+  gem "mysql2", platform: :ruby
+  gem "pg", platform: :ruby
 
   gem "simplecov", require: false
   gem 'coveralls', require: false

@@ -100,7 +100,7 @@ module LookupBy
           when self    then arg
           else raise TypeError, "#{name}[arg]: arg must be at least one String, Symbol, Integer, nil, or #{name}"
           end
-        else return args.map { |arg| self[arg] } 
+        else return args.map { |arg| self[arg] }
         end
       end
 
@@ -162,15 +162,22 @@ module LookupBy
 
         table_options[:id] = false if options[:small]
 
+        adapter = ActiveRecord::Base.connection.instance_values.fetch('config', {}).fetch(:adapter, 'unknown')
+        if ['mysql', 'mysql2'].include?(adapter)
+          small_column_options = 'SMALLINT DEFAULT NULL auto_increment PRIMARY KEY'
+        else
+          small_column_options = 'smallserial primary key'
+        end
+
         create_table name, table_options do |t|
-          t.column table_options[:primary_key], 'smallserial primary key' if options[:small]
+          t.column table_options[:primary_key], small_column_options if options[:small]
 
           t.column lookup_column, lookup_type, null: false
 
           yield t if block_given?
         end
 
-        add_index name, lookup_column, unique: true, name: "#{table}__u_#{lookup_column}"
+        add_index name, lookup_column, unique: true, name: "#{table}__u_#{lookup_column}", length: 10 if ['mysql', 'mysql2'].include?(adapter)
       end
 
       def create_lookup_tables(*names)

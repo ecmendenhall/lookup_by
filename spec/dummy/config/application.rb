@@ -25,4 +25,3 @@ module Dummy
     config.active_record.schema_format = :sql
   end
 end
-
